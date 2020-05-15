@@ -135,5 +135,29 @@ RSpec.describe Game, type: :model do
         expect(game_w_questions.status).to eq :won
       end
     end
+
+    describe '#current_game_question' do
+      it 'returns current game_question object' do
+        max_level = Game::PRIZES.size - 1
+
+        (0..max_level).each do |lev|
+          game_w_questions.current_level = lev
+          q = game_w_questions.current_game_question
+          expect(q).to be_an_instance_of GameQuestion
+          expect(q.level).to eq lev
+        end
+      end
+    end
+
+    describe '#previous_level' do
+      it 'returns previous level of the game' do
+        max_level = Game::PRIZES.size - 1
+
+        (0..max_level).each do |lev|
+          game_w_questions.current_level = lev
+          expect(game_w_questions.previous_level).to eq(lev - 1)
+        end
+      end
+    end
   end
 end
