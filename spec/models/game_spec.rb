@@ -141,14 +141,14 @@ RSpec.describe Game, type: :model do
         game_w_questions.current_level = 0
         q = game_w_questions.current_game_question
 
-        expect(q).to eq game_w_questions.game_questions.find { |q| q.level == 0 }
+        expect(q).to eq game_w_questions.game_questions[0]
       end
 
       it 'returns the last game question' do
         game_w_questions.current_level = 14
         q = game_w_questions.current_game_question
 
-        expect(q).to eq game_w_questions.game_questions.find { |q| q.level == 14 }
+        expect(q).to eq game_w_questions.game_questions[14]
       end
     end
 
