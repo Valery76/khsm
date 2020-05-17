@@ -138,14 +138,17 @@ RSpec.describe Game, type: :model do
 
     describe '#current_game_question' do
       it 'returns the first game question' do
-        expect(q).to eq game_w_questions.game_questions.find { |q| q.level == min_level }
+        game_w_questions.current_level = 0
+        q = game_w_questions.current_game_question
+
+        expect(q).to eq game_w_questions.game_questions.find { |q| q.level == 0 }
       end
 
       it 'returns the last game question' do
-        game_w_questions.current_level = max_level
+        game_w_questions.current_level = 14
         q = game_w_questions.current_game_question
 
-        expect(q).to eq game_w_questions.game_questions.find { |q| q.level == max_level }
+        expect(q).to eq game_w_questions.game_questions.find { |q| q.level == 14 }
       end
     end
 
