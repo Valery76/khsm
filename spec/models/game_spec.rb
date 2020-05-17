@@ -22,7 +22,7 @@ RSpec.describe Game, type: :model do
   let(:min_level) { 0 }
   let(:max_level) { 14 }
   let(:q) { game_w_questions.current_game_question }
-  let(:wrong_answer_key) { (q.variants.keys - [q.correct_answer_key]).first }
+  let(:wrong_answer_key) { (q.variants.keys - [q.correct_answer_key]).sample }
 
   # Группа тестов на работу фабрики создания новых игр
   context 'Game Factory' do
@@ -172,11 +172,13 @@ RSpec.describe Game, type: :model do
             expect { result = game_w_questions.answer_current_question!(q.correct_answer_key) }.
               to change(game_w_questions, :current_level).by(1).and(
                 change(user, :balance).by(prize).and(
-                  change(game_w_questions, :status).from(:in_progress).to(:won)
+                  change(game_w_questions, :status).from(:in_progress).to(:won).and(
+                    change(game_w_questions, :finished?).from(false).to(true)
+                  )
                 )
               )
 
-            expect(result).to eq true
+            expect(result).to be true
           end
         end
 
@@ -186,7 +188,9 @@ RSpec.describe Game, type: :model do
             expect { result = game_w_questions.answer_current_question!(q.correct_answer_key) }.
               to change(game_w_questions, :current_level).by(1)
 
-            expect(result).to eq true
+            expect(result).to be true
+            expect(game_w_questions.status).to eq :in_progress
+            expect(game_w_questions).not_to be_finished
           end
         end
       end
@@ -197,7 +201,9 @@ RSpec.describe Game, type: :model do
           expect { result = game_w_questions.answer_current_question!(wrong_answer_key) }.
             to change(game_w_questions, :status).from(:in_progress).to(:fail)
 
-          expect(result).to eq false
+          expect(result).to be false
+          expect(game_w_questions.status).to eq :fail
+          expect(game_w_questions).to be_finished
         end
       end
 
@@ -209,13 +215,17 @@ RSpec.describe Game, type: :model do
 
           context 'correctly' do
             it 'returns false' do
-              expect(game_w_questions.answer_current_question!(q.correct_answer_key)).to eq false
+              expect(game_w_questions.answer_current_question!(q.correct_answer_key)).to be false
+              expect(game_w_questions.status).to eq :timeout
+              expect(game_w_questions).to be_finished
             end
           end
 
           context 'wrongly' do
             it 'returns false' do
-              expect(game_w_questions.answer_current_question!(wrong_answer_key)).to eq false
+              expect(game_w_questions.answer_current_question!(wrong_answer_key)).to be false
+              expect(game_w_questions.status).to eq :timeout
+              expect(game_w_questions).to be_finished
             end
           end
         end
@@ -227,13 +237,17 @@ RSpec.describe Game, type: :model do
 
           context 'correctly' do
             it 'returns false' do
-              expect(game_w_questions.answer_current_question!(q.correct_answer_key)).to eq false
+              expect(game_w_questions.answer_current_question!(q.correct_answer_key)).to be false
+              expect(game_w_questions.status).to eq :fail
+              expect(game_w_questions).to be_finished
             end
           end
 
           context 'wrongly' do
             it 'returns false' do
-              expect(game_w_questions.answer_current_question!(wrong_answer_key)).to eq false
+              expect(game_w_questions.answer_current_question!(wrong_answer_key)).to be false
+              expect(game_w_questions.status).to eq :fail
+              expect(game_w_questions).to be_finished
             end
           end
         end
@@ -242,18 +256,21 @@ RSpec.describe Game, type: :model do
           before do
             game_w_questions.current_level = max_level
             game_w_questions.answer_current_question!(q.correct_answer_key)
-            game_w_questions.current_level = game_w_questions.previous_level
           end
 
           context 'correctly' do
             it 'returns false' do
-              expect(game_w_questions.answer_current_question!(q.correct_answer_key)).to eq false
+              expect(game_w_questions.answer_current_question!(q.correct_answer_key)).to be false
+              expect(game_w_questions.status).to eq :won
+              expect(game_w_questions).to be_finished
             end
           end
 
           context 'wrongly' do
             it 'returns false' do
-              expect(game_w_questions.answer_current_question!(wrong_answer_key)).to eq false
+              expect(game_w_questions.answer_current_question!(wrong_answer_key)).to be false
+              expect(game_w_questions.status).to eq :won
+              expect(game_w_questions).to be_finished
             end
           end
         end
