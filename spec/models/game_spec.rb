@@ -153,11 +153,14 @@ RSpec.describe Game, type: :model do
     end
 
     describe '#previous_level' do
-      it 'returns previous level of the game' do
-        (0..max_level).each do |lev|
-          game_w_questions.current_level = lev
-          expect(game_w_questions.previous_level).to eq(lev - 1)
-        end
+      it 'returns -1 for game level 0' do
+        game_w_questions.current_level = 0
+        expect(game_w_questions.previous_level).to eq -1
+      end
+
+      it 'returns 13 for game level 14' do
+        game_w_questions.current_level = 14
+        expect(game_w_questions.previous_level).to eq 13
       end
     end
 
