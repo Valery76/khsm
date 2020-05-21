@@ -92,4 +92,21 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to(game_path(game))
     end
   end
+
+  context 'Another user' do
+    let(:user2) { FactoryBot.create(:user) }
+
+    before(:each) do
+      sign_in user2
+    end
+
+    it "can't see the first's user game" do
+      get :show, id: game_w_questions.id
+
+      expect(game_w_questions).not_to be_finished
+      expect(response.status).not_to eq :success
+      expect(response).to redirect_to root_path
+      expect(flash[:alert]).not_to be_nil
+    end
+  end
 end
