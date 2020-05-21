@@ -32,6 +32,68 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
       expect(flash[:alert]).to be # во flash должен быть прописана ошибка
     end
+
+    it 'kick from #create' do
+      post :create
+      game = assigns(:game)
+
+      expect(game).to be_nil
+      expect(response.status).not_to eq 200
+      expect(response).to redirect_to(new_user_session_path)
+      expect(flash[:alert]).to be_truthy
+    end
+
+    it 'kick from #answer' do
+      put :answer, id: game_w_questions.id, letter: game_w_questions.current_game_question.correct_answer_key
+      game = assigns(:game)
+
+      expect(game).to be_nil
+      expect(response.status).not_to eq 200
+      expect(response).to redirect_to(new_user_session_path)
+      expect(flash[:alert]).to be_truthy
+    end
+
+    it 'kick from #take_money' do
+      put :take_money, id: game_w_questions.id
+      game = assigns(:game)
+
+      expect(game).to be_nil
+      expect(response.status).not_to eq 200
+      expect(response).to redirect_to(new_user_session_path)
+      expect(flash[:alert]).to be_truthy
+    end
+
+    context 'kick from #help' do
+      it 'on trying to use audience help' do
+        put :help, id: game_w_questions.id, help_type: :audience_help
+        game = assigns(:game)
+
+        expect(game).to be_nil
+        expect(response.status).not_to eq 200
+        expect(response).to redirect_to(new_user_session_path)
+        expect(flash[:alert]).to be_truthy
+      end
+
+      it 'on trying to use fifty fifty help' do
+        put :help, id: game_w_questions.id, help_type: :fifty_fifty
+        game = assigns(:game)
+
+        expect(game).to be_nil
+        expect(response.status).not_to eq 200
+        expect(response).to redirect_to(new_user_session_path)
+        expect(flash[:alert]).to be_truthy
+      end
+
+      it 'on trying to use friend call' do
+        put :help, id: game_w_questions.id, help_type: :friend_call
+        game = assigns(:game)
+
+        expect(game).to be_nil
+        expect(response.status).not_to eq 200
+        expect(response).to redirect_to(new_user_session_path)
+        expect(flash[:alert]).to be_truthy
+      end
+    end
   end
 
   # группа тестов на экшены контроллера, доступных залогиненным юзерам
