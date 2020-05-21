@@ -51,6 +51,17 @@ RSpec.describe GamesController, type: :controller do
       expect(flash[:notice]).to be
     end
 
+    it "can't create the second game without finishing the first one" do
+      expect(game_w_questions).not_to be_finished
+
+      expect { post :create }.to change(Game, :count).by(0)
+
+      game2 = assigns(:game)
+      expect(game2).to be_nil
+      expect(response).to redirect_to(game_path(game_w_questions))
+      expect(flash[:alert]).not_to be_nil
+    end
+
     # юзер видит свою игру
     it '#show game' do
       get :show, id: game_w_questions.id
